@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+       <h1><%=kindofday %></h1> 
+       <ul>
+           <li>buy food</li>
+           <li>cook food</li>
+           <li>eat food</li>
+          <%  for(var i=0; i<x.length; i++) {  %>
+           <li><%=x[i]%></li>
+            <% } %>
+          
+           
+       </ul>
+       <form action="/" method="POST">
+        <input type="text" name="nextItem">
+        <button type="submit" >Add</button>
+    </form>
+</body>
+</html>
