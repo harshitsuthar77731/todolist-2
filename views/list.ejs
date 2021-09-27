@@ -12,18 +12,18 @@
            <div class="item">
             <input type="checkbox">
             <p><%=element.name%><p>
-              <button type="submit"   value="<%=element._id%>" name="deleteid" >❌</button>     
+              <button type="submit"   value="<%=element._id%>" name="deleteid" >❌</button> 
+              <input type="hidden" value="<%=listTitle %>" name="listtitle">    
 
            </div>
           </form>
          <% }); %>
         
        
-        
     </ul>
     <form action="/" method="POST" class="item">
         <input type="text" name="nextItem" autocomplete="off" placeholder="New item">
-        <button type="submit" name="list" class="x" value= <%= listTitle %> >+</button>
+        <button type="submit" name="list" value= <%= listTitle %> >+</button>
     </form>
     </div>
       

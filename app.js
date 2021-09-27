@@ -4,21 +4,36 @@ const app = express();
 app.use(bodyparser({extended:true}));
 app.use(express.static("public"));
 const mongoose = require("mongoose");
+const { render } = require("ejs");
+const __ = require("lodash");
+
+
 
 app.set('view engine','ejs');
 let work=[];
 
 
-
+//connecting to server
 mongoose.connect("mongodb://localhost:27017/todolistDB");
+
+// creating schema
 
 const itemsSchema = new mongoose.Schema({
 name : String,
 });
 
+const listschema = new mongoose.Schema({
+    name :  String,
+    items : [itemsSchema]
+})
+
+//creating model/collection
 
 const itemdb =  mongoose.model("itemdb",itemsSchema); 
 
+const List = mongoose.model("Lists",listschema);
+
+// inserting data;
 let itema = new itemdb({
     name  : "Welcome to todolist!"
     });
@@ -28,6 +43,9 @@ let itemb = new itemdb({
 let itemc = new itemdb({
     name  : "<-- hit this to delete an item"
     });
+
+let defaultvalue = [itema,itemb,itemc];
+
 
 app.get("/",function(req,res){
  
@@ -57,40 +75,97 @@ app.get("/",function(req,res){
 
 
 app.post("/",function(req,res){
-    let items  = req.body.nextItem;
+    let value  = req.body.nextItem;
+    let listname = req.body.list;
     console.log(req.body);
+    if(listname==="Today")
+    {
     let temp = new itemdb({
-        name  : items,
+        name  : value,
         });
     temp.save();
+    console.log("succesfully added");
     res.redirect("/")
+    }
+    else
+    {
+        List.findOne({name: listname},function(err,data){
+            let temp = new itemdb({
+                name: value
+            });
+            data.items.push(temp);
+            data.save();
+            console.log(data);
+            console.log("succesfully added");
+        })
+        res.redirect("/"+listname);
+    }
  })
 
 
  app.post("/delete",function(req,res){
     let temp = req.body;
-    console.log(temp.deleteid);
+    console.log(temp);
     //delete by id
-    itemdb.deleteOne({_id:temp.deleteid},function(err){
-    if(err)
-        console.log(err);
+    if(temp.listtitle==="Today"){
+        itemdb.deleteOne({_id:temp.deleteid},function(err){
+        if(err)
+            console.log(err);
+        else
+            console.log("successfully deleted");
+        })
+        res.redirect("/");
+        }
     else
-        console.log("successfully deleted");
-    });
+    {
+        
+                List.update({name:temp.listtitle},{"$pull":{"items":{ "_id":temp.deleteid}}},{ safe: true, multi:true },function(err,data){
+                    if(err)
+                    {
+                        console.log(err);
+            
+                    }
+                    else
+                    {
+                        console.log("succesfully deleted");
+                        
+                    }
+                    res.redirect("/"+temp.listtitle);
+                })
+    
 
 
-    res.redirect("/");
- })
+            }} );
 
-//  app.get("/work",function(req,res){
-//      res.render("list",{listTitle:"Work",newListItem:work})
-//  })
-// app.get("/about",function(req,res){
-//     res.render("about");
-// })
 
+
+app.get("/:customlist",function(req,res){
+
+    let customlist = __.capitalize(req.params.customlist);
+    List.findOne({name:customlist},function(err,data){
+       if(!err){
+
+       // console.log(data);
+        if(!data)
+        {
+           const temp = new List({
+               name: customlist,
+               items: defaultvalue
+           })
+           temp.save();
+           res.redirect("/"+customlist)
+        }
+        else
+        {
+           // console.log(data);
+            res.render("list",{listTitle:data.name,newListItem: data.items })
+         }
+    }});
+})
+
+
+//listinig to server 3000
 
 app.listen(3000,function(){
     console.log(`listining to server 3000`);
 })
-
