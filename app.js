@@ -14,7 +14,7 @@ let work=[];
 
 
 //connecting to server
-mongoose.connect("mongodb://localhost:27017/todolistDB");
+mongoose.connect("mongodb+srv://harshit-admin:1234@cluster0.zcq4o.mongodb.net/todolistDB");
 
 // creating schema
 
@@ -77,14 +77,12 @@ app.get("/",function(req,res){
 app.post("/",function(req,res){
     let value  = req.body.nextItem;
     let listname = req.body.list;
-    console.log(req.body);
     if(listname==="Today")
     {
     let temp = new itemdb({
         name  : value,
         });
     temp.save();
-    console.log("succesfully added");
     res.redirect("/")
     }
     else
@@ -95,8 +93,6 @@ app.post("/",function(req,res){
             });
             data.items.push(temp);
             data.save();
-            console.log(data);
-            console.log("succesfully added");
         })
         res.redirect("/"+listname);
     }
